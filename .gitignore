@@ -1,0 +1,41 @@
+# Build artifacts
+/target/
+*/target/
+
+# Rust specific
+**/*.rs.bk
+*.pdb
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env.local
+.env.*.local
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+flycheck*/
+
+# Development files
+dummy_keypair/
+db/
+*.bat
+*.sql
