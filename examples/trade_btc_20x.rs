@@ -1,5 +1,5 @@
 use trading_system::solana_trade::sol_long_20x;
-use solana_sdk::signature::Keypair;
+use solana_sdk::signature::{Keypair, Signer};
 use solana_client::rpc_client::RpcClient;
 use anyhow::Result;
 

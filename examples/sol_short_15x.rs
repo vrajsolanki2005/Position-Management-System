@@ -2,7 +2,7 @@ use trading_system::solana_trade::execute_market_trade;
 use trading_system::advanced_orders::{OrderManager, AdvancedOrder, OrderType};
 use position_service::db::repo::PgRepo;
 use position_service::models::{OpenPositionInput, Side};
-use solana_sdk::signature::Keypair;
+use solana_sdk::signature::{Keypair, Signer};
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::pubkey::Pubkey;
 use chrono::Utc;
@@ -40,6 +40,8 @@ async fn main() -> Result<()> {
         size: size_in_lamports,
         entry_price: 180_000000, // $180 in 6 decimals
         leverage: leverage as u16,
+        margin_token_account: Pubkey::new_unique(),
+        quote_mint: Pubkey::new_unique(),
     };
     
     repo.insert_position_open_intent(&trader.pubkey(), &position_pda, &position_input).await?;

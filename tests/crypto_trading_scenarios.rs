@@ -75,9 +75,11 @@ async fn test_bull_market() -> TestResults {
             let trade = TradeRecord {
                 symbol: "BTC-USD".to_string(),
                 size: 10000,
-                price,
+                entry_price: 50000,
+                exit_price: price,
                 pnl: (price as i64 - 50000) * 10000 / 50000,
-                timestamp: Utc::now(),
+                entry_time: Utc::now(),
+                exit_time: Utc::now(),
             };
             engine.record_trade(trade).await;
         }
@@ -117,9 +119,11 @@ async fn test_bear_market() -> TestResults {
             let trade = TradeRecord {
                 symbol: "ETH-USD".to_string(),
                 size: 50000,
-                price,
+                entry_price: 3000,
+                exit_price: price,
                 pnl: (price as i64 - 3000) * 50000 / 3000,
-                timestamp: Utc::now(),
+                entry_time: Utc::now(),
+                exit_time: Utc::now(),
             };
             engine.record_trade(trade).await;
         }
@@ -149,9 +153,11 @@ async fn test_high_volatility() -> TestResults {
         let trade = TradeRecord {
             symbol: "BTC-USD".to_string(),
             size: 20000,
-            price,
+            entry_price: 45000,
+            exit_price: price,
             pnl: if price > 45000 { 10000 } else { -8000 },
-            timestamp: Utc::now(),
+            entry_time: Utc::now(),
+            exit_time: Utc::now(),
         };
         engine.record_trade(trade).await;
     }
@@ -203,9 +209,11 @@ async fn test_stop_loss_cascade() -> TestResults {
             let trade = TradeRecord {
                 symbol: "SOL-USD".to_string(),
                 size: 500000,
-                price,
+                entry_price: 100,
+                exit_price: price,
                 pnl: (price as i64 - 100) * 500000 / 100,
-                timestamp: Utc::now(),
+                entry_time: Utc::now(),
+                exit_time: Utc::now(),
             };
             engine.record_trade(trade).await;
         }
@@ -247,9 +255,11 @@ async fn test_liquidation_scenario() -> TestResults {
             let trade = TradeRecord {
                 symbol: "BTC-USD".to_string(),
                 size: position.size,
-                price,
+                entry_price: 50000,
+                exit_price: price,
                 pnl: -4000, // Total collateral lost
-                timestamp: Utc::now(),
+                entry_time: Utc::now(),
+                exit_time: Utc::now(),
             };
             engine.record_trade(trade).await;
             break;
@@ -284,7 +294,7 @@ async fn test_take_profit_ladder() -> TestResults {
         id: "tp1".to_string(),
         owner: position.owner,
         symbol: "ETH-USD".to_string(),
-        order_type: OrderType::TakeProfit { trigger_price: 2200 },
+        order_type: OrderType::TakeProfit { target_price: 2200 },
         size: 100000,
         created_at: Utc::now(),
         is_active: true,
@@ -294,7 +304,7 @@ async fn test_take_profit_ladder() -> TestResults {
         id: "tp2".to_string(),
         owner: position.owner,
         symbol: "ETH-USD".to_string(),
-        order_type: OrderType::TakeProfit { trigger_price: 2400 },
+        order_type: OrderType::TakeProfit { target_price: 2400 },
         size: 100000,
         created_at: Utc::now(),
         is_active: true,
@@ -314,9 +324,11 @@ async fn test_take_profit_ladder() -> TestResults {
             let trade = TradeRecord {
                 symbol: "ETH-USD".to_string(),
                 size: 100000,
-                price,
+                entry_price: 2000,
+                exit_price: price,
                 pnl: (price as i64 - 2000) * 100000 / 2000,
-                timestamp: Utc::now(),
+                entry_time: Utc::now(),
+                exit_time: Utc::now(),
             };
             engine.record_trade(trade).await;
         }

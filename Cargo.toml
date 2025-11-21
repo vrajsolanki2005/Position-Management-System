@@ -2,6 +2,7 @@
 name = "trading-system"
 version = "0.1.0"
 edition = "2021"
+default-run = "trading-system"
 
 [dependencies]
 anyhow = "1.0"
@@ -16,16 +17,16 @@ serde_json = "1.0"
 # Async runtime
 tokio = { version = "1.36", features = ["full"] }
 
-# Solana ecosystem (modern, zero conflicts)
-solana-program = "1.16.18"
-solana-sdk     = "1.16.18"
-solana-client  = "1.16.18"
+# Solana ecosystem (versions compatible with older zeroize)
+solana-program = "1.14"
+solana-sdk     = "1.14"
+solana-client  = "1.14"
 
-# Anchor client compat with Solana 1.16
-anchor-client = "0.29.0"
+# Anchor client compat
+anchor-client = "0.26"
 
-# SQLX – only Postgres, no MySQL (MySQL triggers RSA/zeroize conflicts)
-sqlx = { version = "0.7.4", default-features = false,features = ["postgres", "runtime-tokio-rustls", "uuid", "chrono"] }
+# SQLX – use older version compatible with zeroize <1.4
+sqlx = { version = "0.6", default-features = false, features = ["postgres", "sqlite", "runtime-tokio-rustls", "uuid", "chrono"] }
 
 # UUID support
 uuid = { version = "1.6", features = ["v4", "serde"] }
@@ -36,3 +37,11 @@ position-service = { path = "backend" }
 [[example]]
 name = "sol_short_15x"
 path = "examples/sol_short_15x.rs"
+
+[[bin]]
+name = "live_demo"
+path = "src/bin/live_demo.rs"
+
+[[bin]]
+name = "interactive_demo"
+path = "src/bin/interactive_demo.rs"

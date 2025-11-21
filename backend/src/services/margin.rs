@@ -1,8 +1,8 @@
 use serde::{Serialize, Deserialize};
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub const SCALE: i128 = 1_000_000;
 
+#[derive(Debug, Clone, Copy)]
 pub struct LeverageTier {
     pub max_leverage: u16,
     pub initial_margin_rate: i64,    // scaled by 1e6
@@ -19,11 +19,11 @@ impl Default for MarginCalculator {
     fn default() -> Self {
         Self {
             tiers: vec![
-                LeverageTier { max_leverage: 20,  initial_margin_rate: 0.05,  maintenance_margin_rate: 0.025, max_position_size: f64::INFINITY },
-                LeverageTier { max_leverage: 50,  initial_margin_rate: 0.02,  maintenance_margin_rate: 0.01,  max_position_size: 100_000.0 },
-                LeverageTier { max_leverage: 100, initial_margin_rate: 0.01,  maintenance_margin_rate: 0.005, max_position_size: 50_000.0 },
-                LeverageTier { max_leverage: 500, initial_margin_rate: 0.005, maintenance_margin_rate: 0.0025, max_position_size: 20_000.0 },
-                LeverageTier { max_leverage: 1000,initial_margin_rate: 0.002, maintenance_margin_rate: 0.001, max_position_size: 5_000.0 },
+                LeverageTier { max_leverage: 20,  initial_margin_rate: 50_000,  maintenance_margin_rate: 25_000, max_position_size: i128::MAX },
+                LeverageTier { max_leverage: 50,  initial_margin_rate: 20_000,  maintenance_margin_rate: 10_000,  max_position_size: 100_000_000_000 },
+                LeverageTier { max_leverage: 100, initial_margin_rate: 10_000,  maintenance_margin_rate: 5_000, max_position_size: 50_000_000_000 },
+                LeverageTier { max_leverage: 500, initial_margin_rate: 5_000, maintenance_margin_rate: 2_500, max_position_size: 20_000_000_000 },
+                LeverageTier { max_leverage: 1000,initial_margin_rate: 2_000, maintenance_margin_rate: 1_000, max_position_size: 5_000_000_000 },
             ]
         }
     }
@@ -31,7 +31,7 @@ impl Default for MarginCalculator {
 
 impl MarginCalculator {
     pub fn tier_for(&self, leverage: u16, position_size_quote: f64) -> Option<LeverageTier> {
-        self.tiers.iter().copied().find(|t| leverage <= t.max_leverage && position_size_quote <= t.max_position_size)
+        self.tiers.iter().copied().find(|t| leverage <= t.max_leverage && position_size_quote <= t.max_position_size as f64)
     }
 
     pub fn initial_margin(&self, notional: f64, leverage: f64) -> f64 {

@@ -91,3 +91,14 @@ impl TradingEngine {
         self.user_tiers.insert(user_id, tier);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_trading_engine_creation() {
+        let engine = TradingEngine::new();
+        assert_eq!(engine.user_tiers.len(), 0);
+    }
+}

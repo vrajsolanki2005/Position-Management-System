@@ -1,9 +1,8 @@
 use std::sync::Arc;
 use anyhow::Result;
-use solana_sdk::{pubkey::Pubkey, system_program, signature::Signer};
-use anchor_client::Program;
+use solana_sdk::{pubkey::Pubkey, signature::Signer};
 
-use crate::{models::{OpenPositionInput, ModifyAction, PositionView, Side, PositionState}, solana::{client::SolanaCtx, pda}, db::repo::PgRepo};
+use crate::{models::{OpenPositionInput, ModifyAction, PositionView}, solana::{client::SolanaCtx, pda}, db::repo::PgRepo};
 use super::{margin::MarginCalculator, pnl::PnLTracker};
 
 #[derive(Clone)]

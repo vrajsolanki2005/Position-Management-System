@@ -7,7 +7,6 @@ use trading_system::{
 };
 use solana_sdk::pubkey::Pubkey;
 use chrono::Utc;
-use serde_json::json;
 
 pub struct CryptoTestSuite {
     engine: TradingEngine,
@@ -82,10 +81,12 @@ impl CryptoTestSuite {
                 
                 let trade = TradeRecord {
                     symbol: "BTC-USD".to_string(),
-                    size: position_size,
-                    price,
+                    size: position_size as u64,
+                    entry_price: 40000,
+                    exit_price: price,
                     pnl: trade_pnl,
-                    timestamp: Utc::now(),
+                    entry_time: Utc::now(),
+                    exit_time: Utc::now(),
                 };
                 self.engine.record_trade(trade).await;
             }
@@ -125,10 +126,12 @@ impl CryptoTestSuite {
                 
                 let trade = TradeRecord {
                     symbol: "ETH-USD".to_string(),
-                    size: position_size,
-                    price,
+                    size: position_size as u64,
+                    entry_price: 4000,
+                    exit_price: price,
                     pnl: trade_pnl,
-                    timestamp: Utc::now(),
+                    entry_time: Utc::now(),
+                    exit_time: Utc::now(),
                 };
                 self.engine.record_trade(trade).await;
             }
@@ -143,7 +146,7 @@ impl CryptoTestSuite {
             max_drawdown: 0.70,
             risk_score: 0.8,
             execution_time_ms: start.elapsed().as_millis() as u64,
-            details: format!("70% price decline, short strategy", trades),
+            details: format!("70% price decline, short strategy with {} trades", trades),
         });
     }
 
@@ -168,9 +171,11 @@ impl CryptoTestSuite {
                 let trade = TradeRecord {
                     symbol: "BTC-USD".to_string(),
                     size: position_size,
-                    price,
+                    entry_price: 50000,
+                    exit_price: price,
                     pnl: trade_pnl,
-                    timestamp: Utc::now(),
+                    entry_time: Utc::now(),
+                    exit_time: Utc::now(),
                 };
                 self.engine.record_trade(trade).await;
             }
@@ -224,9 +229,11 @@ impl CryptoTestSuite {
                 let trade = TradeRecord {
                     symbol: "SOL-USD".to_string(),
                     size: position.size,
-                    price,
+                    entry_price: 80,
+                    exit_price: price,
                     pnl: (price as i64 - 80) * position.size as i64 / 80,
-                    timestamp: Utc::now(),
+                    entry_time: Utc::now(),
+                    exit_time: Utc::now(),
                 };
                 self.engine.record_trade(trade).await;
                 break;
@@ -306,16 +313,18 @@ impl CryptoTestSuite {
             let entry_price = 45000;
             let exit_price = 49500; // 10% gain
             
-            let trade_pnl = (exit_price - entry_price) as i64 * position_size as i64 / entry_price;
+            let trade_pnl = (exit_price - entry_price) as i64 * position_size as i64 / entry_price as i64;
             total_pnl += trade_pnl;
             trades += 1;
             
             let trade = TradeRecord {
                 symbol: "BTC-USD".to_string(),
                 size: position_size,
-                price: exit_price,
+                entry_price: entry_price as u64,
+                exit_price: exit_price as u64,
                 pnl: trade_pnl,
-                timestamp: Utc::now(),
+                entry_time: Utc::now(),
+                exit_time: Utc::now(),
             };
             self.engine.record_trade(trade).await;
         }
@@ -357,7 +366,7 @@ impl CryptoTestSuite {
                 id: format!("tp_{}", i),
                 owner: position.owner,
                 symbol: "ETH-USD".to_string(),
-                order_type: OrderType::TakeProfit { trigger_price: *tp_price },
+                order_type: OrderType::TakeProfit { target_price: *tp_price },
                 size: *size,
                 created_at: Utc::now(),
                 is_active: true,
@@ -382,9 +391,11 @@ impl CryptoTestSuite {
                     let trade = TradeRecord {
                         symbol: "ETH-USD".to_string(),
                         size: *size,
-                        price: *tp_price,
+                        entry_price: 2500,
+                        exit_price: *tp_price,
                         pnl: trade_pnl,
-                        timestamp: Utc::now(),
+                        entry_time: Utc::now(),
+                        exit_time: Utc::now(),
                     };
                     self.engine.record_trade(trade).await;
                 }
@@ -427,14 +438,16 @@ impl CryptoTestSuite {
             if price <= trailing_stop {
                 // Trailing stop triggered
                 trades += 1;
-                pnl = (price as i64 - entry_price) * 1000; // 1000 SOL position
+                pnl = (price as i64 - entry_price as i64) * 1000; // 1000 SOL position
                 
                 let trade = TradeRecord {
                     symbol: "SOL-USD".to_string(),
                     size: 1000000,
-                    price,
+                    entry_price: entry_price,
+                    exit_price: price,
                     pnl,
-                    timestamp: Utc::now(),
+                    entry_time: Utc::now(),
+                    exit_time: Utc::now(),
                 };
                 self.engine.record_trade(trade).await;
                 break;
@@ -486,7 +499,7 @@ impl CryptoTestSuite {
             id: "bracket_tp".to_string(),
             owner: position.owner,
             symbol: "ETH-USD".to_string(),
-            order_type: OrderType::TakeProfit { trigger_price: take_profit },
+            order_type: OrderType::TakeProfit { target_price: take_profit },
             size: position.size,
             created_at: Utc::now(),
             is_active: true,
@@ -505,14 +518,16 @@ impl CryptoTestSuite {
             
             if price >= take_profit {
                 trades += 1;
-                pnl = (take_profit as i64 - entry_price) * position.size as i64 / entry_price;
+                pnl = (take_profit as i64 - entry_price as i64) * position.size as i64 / entry_price as i64;
                 
                 let trade = TradeRecord {
                     symbol: "ETH-USD".to_string(),
                     size: position.size,
-                    price: take_profit,
+                    entry_price: entry_price,
+                    exit_price: take_profit,
                     pnl,
-                    timestamp: Utc::now(),
+                    entry_time: Utc::now(),
+                    exit_time: Utc::now(),
                 };
                 self.engine.record_trade(trade).await;
                 break;
@@ -551,9 +566,11 @@ impl CryptoTestSuite {
                 let trade = TradeRecord {
                     symbol: "BTC-USD".to_string(),
                     size: 100000,
-                    price,
+                    entry_price: price,
+                    exit_price: 48000,
                     pnl: trade_pnl,
-                    timestamp: Utc::now(),
+                    entry_time: Utc::now(),
+                    exit_time: Utc::now(),
                 };
                 self.engine.record_trade(trade).await;
             }
@@ -595,10 +612,12 @@ impl CryptoTestSuite {
                 
                 let trade = TradeRecord {
                     symbol: "MEME-USD".to_string(),
-                    size: position_size,
-                    price,
+                    size: position_size as u64,
+                    entry_price: 12,
+                    exit_price: price,
                     pnl: exit_pnl,
-                    timestamp: Utc::now(),
+                    entry_time: Utc::now(),
+                    exit_time: Utc::now(),
                 };
                 self.engine.record_trade(trade).await;
                 break;
@@ -645,9 +664,11 @@ impl CryptoTestSuite {
             let trade = TradeRecord {
                 symbol: "LOWLIQ-USD".to_string(),
                 size: position_size,
-                price: ask, // Pay ask price
+                entry_price: bid,
+                exit_price: ask, // Pay ask price
                 pnl: -(slippage_cost as i64),
-                timestamp: Utc::now(),
+                entry_time: Utc::now(),
+                exit_time: Utc::now(),
             };
             self.engine.record_trade(trade).await;
         }
