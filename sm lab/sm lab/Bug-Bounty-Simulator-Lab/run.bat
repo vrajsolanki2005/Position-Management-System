@@ -1,9 +1,0 @@
-@echo off
-echo Starting Bug Bounty Simulator Lab...
-echo.
-echo Installing dependencies...
-pip install -r requirements.txt
-echo.
-echo Starting Flask application...
-python app.py
-pause
